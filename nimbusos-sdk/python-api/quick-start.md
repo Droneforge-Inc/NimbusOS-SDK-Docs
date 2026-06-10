@@ -1,3 +1,7 @@
+---
+description: Short current examples for creating a NimbusClient, subscribing, publishing, camera access, and CLI smoke tests.
+---
+
 # Quick Start
 
 This page gives short examples for the most common SDK tasks.
@@ -14,21 +18,23 @@ Use `NimbusClient` as a context manager when possible:
 from nimbusos_sdk import NimbusClient
 
 with NimbusClient() as client:
-    client.publish_guidance_request("go")
+    for telemetry in client.telemetry(timeout_sec=1.0):
+        print(telemetry.seq, telemetry.t_ns)
+        break
 ```
 
-Exiting the `with` block closes the publisher socket owned by that client.
+Exiting the `with` block closes any publisher socket owned by that client.
 
 ## Publish a basic command
 
-Arm NimbusOS and request normal guided operation:
+Arm NimbusOS and request takeoff:
 
 ```python
 from nimbusos_sdk import NimbusClient
 
 with NimbusClient() as client:
     client.publish_arm_state(True)
-    client.publish_guidance_request("go")
+    client.publish_autonomy_request("takeoff")
 ```
 
 ## Subscribe to telemetry
@@ -46,15 +52,15 @@ with NimbusClient() as client:
 
 `timeout_sec` is the total lifetime of the iterator. If no message arrives before the timeout, the iterator ends.
 
-## Subscribe to state
+## Subscribe to selected state
 
-State includes local-frame position, velocity, attitude, and orientation:
+Selected state includes local-frame position, velocity, attitude, and orientation:
 
 ```python
 from nimbusos_sdk import NimbusClient
 
 with NimbusClient() as client:
-    for state in client.state(timeout_sec=5.0):
+    for state in client.selected_state(timeout_sec=5.0):
         if not state.valid:
             continue
         print(state.position.x_m, state.position.y_m, state.position.z_m)
@@ -78,19 +84,20 @@ with NimbusClient() as client:
 
 Use `client.live_camera_frames()` to read the raw live camera stream instead of the core-selected `camera` stream.
 
-## Publish a waypoint command
+## Publish a relative waypoint
 
-Send an override waypoint in the local frame:
+Set the waypoint path speed and send an override waypoint in the drone body frame:
 
 ```python
 from nimbusos_sdk import NimbusClient
 
 with NimbusClient() as client:
-    client.publish_waypoint_command(
+    client.publish_waypoint_speed(0.45)
+    client.publish_relative_waypoint(
         mode="override",
         forward=1.5,
         right=0.0,
-        down=-1.0,
+        down=0.0,
         threshold_m=0.15,
         hold_time_s=0.0,
     )
@@ -102,9 +109,12 @@ with NimbusClient() as client:
 
 The package also installs CLI tools for quick smoke tests and manual commands:
 
-<pre class="language-bash"><code class="lang-bash"><strong>nimbusos-subscribe telemetry --limit 1 --timeout 5
-</strong>nimbusos-arm
-nimbusos-guidance-request go
-nimbusos-waypoint-command --mode override --forward 1.5 --right 0.0 --down -1.0
+```bash
+nimbusos-subscribe telemetry --limit 1 --timeout 5
+nimbusos-subscribe selected_state --limit 1 --timeout 5
+nimbusos-arm
+nimbusos-autonomy-request takeoff
+nimbusos-autonomy-request relative_waypoint --mode override --forward 1.5 --right 0.0 --down 0.0
+nimbusos-waypoint-speed 0.45
 nimbusos-yaw-turn-command 0.52
-</code></pre>
+```

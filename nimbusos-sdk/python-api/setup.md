@@ -1,3 +1,7 @@
+---
+description: Install nimbusos-sdk and verify the current Python imports and command-line tools.
+---
+
 # Setup
 
 This page shows how to install the SDK and configure its ZeroMQ endpoints.
@@ -37,8 +41,8 @@ Run the import check and confirm that the command-line tools are available:
 python -c "from nimbusos_sdk import NimbusClient; print(NimbusClient)"
 nimbusos-subscribe --help
 nimbusos-arm --help
-nimbusos-guidance-request --help
-nimbusos-waypoint-command --help
+nimbusos-autonomy-request --help
+nimbusos-waypoint-speed --help
 nimbusos-yaw-turn-command --help
 ```
 

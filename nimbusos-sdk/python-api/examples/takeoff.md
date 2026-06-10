@@ -1,23 +1,27 @@
+---
+description: Arm NimbusOS and request takeoff through the current autonomy request API.
+---
+
 # Takeoff
 
-"Takeoff" in the Droneforge ecosystem means "take off and hover". This requires [arming.md](arming.md "mention")the drone first, and once armed you request the autonomy system to send the drone up!
+"Takeoff" in the Droneforge ecosystem means "take off and hover". This requires [arming.md](arming.md "mention") the drone first. Once armed, request takeoff through the autonomy API.
 
-This defaults to 1 meter off the surface the drone took off from.&#x20;
+The current SDK call is `client.publish_autonomy_request("takeoff")`.
 
 ```python
 from __future__ import annotations
 
-import time
 import sys
+import time
 
 from nimbusos_sdk import NimbusClient
 
 
 ARM_WAIT_S = 3.0
 
+
 def main() -> None:
     with NimbusClient() as client:
-
         print("Publishing arm", flush=True)
         client.publish_arm_state(True)
 
@@ -34,3 +38,9 @@ if __name__ == "__main__":
         sys.exit(130)
 ```
 
+The command-line equivalents are:
+
+```bash
+nimbusos-arm
+nimbusos-autonomy-request takeoff
+```

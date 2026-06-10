@@ -1,14 +1,12 @@
 ---
-description: Examples of how to utilize the NimbusOS Python SDK
+description: Practical NimbusOS Python SDK examples for arming, takeoff, waypoints, landing, camera access, and overlays.
 ---
 
 # Examples
 
-These examples are designed to get you familiar with the necessary steps to getting your drone in the air autonomously.
+These examples show the basic autonomous workflow with the current NimbusOS Python SDK.
 
-
-
-First you will need to arm the drone
+First, arm the drone:
 
 {% content-ref url="arming.md" %}
 [arming.md](arming.md)
@@ -16,7 +14,7 @@ First you will need to arm the drone
 
 
 
-Once armed you will need the drone to take off and hover
+Once armed, request takeoff and hover:
 
 {% content-ref url="takeoff.md" %}
 [takeoff.md](takeoff.md)
@@ -24,7 +22,7 @@ Once armed you will need the drone to take off and hover
 
 
 
-Hovering isn't that exciting, so lets make it move around
+After takeoff, publish a relative waypoint:
 
 {% content-ref url="waypoints.md" %}
 [waypoints.md](waypoints.md)
@@ -32,7 +30,7 @@ Hovering isn't that exciting, so lets make it move around
 
 
 
-Amazing, we have the drone moving around in the air, but how do we get it out of the air and back on the floor.
+When the example is complete, request landing:
 
 {% content-ref url="landing.md" %}
 [landing.md](landing.md)
@@ -40,9 +38,14 @@ Amazing, we have the drone moving around in the air, but how do we get it out of
 
 
 
-Now that we can make the drone fly around, lets see what it's actually looking at.
+To inspect the camera feed, read camera frames:
 
 {% content-ref url="camera-access.md" %}
 [camera-access.md](camera-access.md)
 {% endcontent-ref %}
 
+To publish inference drawing instructions on top of camera frames, use camera overlays:
+
+{% content-ref url="inference-drawing.md" %}
+[inference-drawing.md](inference-drawing.md)
+{% endcontent-ref %}

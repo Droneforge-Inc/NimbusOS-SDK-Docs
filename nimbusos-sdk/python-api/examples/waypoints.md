@@ -1,20 +1,22 @@
+---
+description: Publish body-frame relative waypoints and waypoint speed with the current NimbusOS SDK.
+---
+
 # Waypoints
 
-In the Droneforge SDK we speak to the drone in waypoints. These waypoints are in the NED coordinate convention (North, East, Down) and is RELATIVE to the drone body.&#x20;
+The current SDK publishes relative waypoints through the autonomy request API. The helper method is `client.publish_relative_waypoint(...)`.
 
+Relative waypoint offsets are in the drone body frame:
 
+| Field     | Positive movement | Negative movement |
+| --------- | ----------------- | ----------------- |
+| `forward` | Forward           | Backward          |
+| `right`   | Right             | Left              |
+| `down`    | Down              | Up                |
 
-In simple terms think the following
+Going up requires a negative `down` value.
 
-| Axis      | Movement         |
-| --------- | ---------------- |
-| North +/- | Forward/Backward |
-| East +/-  | Right/Left       |
-| Down +/-  | Down/Up          |
-
-It's important to note that going UP requires a negative DOWN value.&#x20;
-
-The simplest way to send a waypoint in the SDK is to call
+The simplest way to send a relative waypoint in the SDK is:
 
 ```python
 client.publish_relative_waypoint(
@@ -27,23 +29,32 @@ client.publish_relative_waypoint(
 )
 ```
 
+Use `mode="override"` to replace the active waypoint. Use `mode="queue"` to append after the active waypoint.
 
+`threshold_m` is the distance from the target that counts as reached. `hold_time_s` is how long NimbusOS should hold after reaching the waypoint.
 
-Threshold gives a padding of success, the waypoint is an exact coordinate and it's rare the drone will ever be 100% where commanded, this gives it some tolerance.
+Waypoint path speed is configured separately:
 
-Hold Time tells how long it should hold at that position before taking in the next waypoint, although this will be easiest to do with time.sleep in python.
+```python
+client.publish_waypoint_speed(0.45)
+```
 
-Example combining [arming.md](arming.md "mention"), [takeoff.md](takeoff.md "mention"), the waypoint and a [landing.md](landing.md "mention")request&#x20;
+The accepted speed range is `0.05` to `0.75` meters per second.
+
+Example combining [arming.md](arming.md "mention"), [takeoff.md](takeoff.md "mention"), a waypoint, and a [landing.md](landing.md "mention") request:
 
 ```python
 from __future__ import annotations
 
+import sys
 import time
 
 from nimbusos_sdk import NimbusClient
 
-TAKEOFF_WAIT_S = 10.0
 ARM_WAIT_S = 3.0
+TAKEOFF_WAIT_S = 10.0
+WAYPOINT_SPEED_MPS = 0.45
+
 
 def main() -> None:
     with NimbusClient() as client:
@@ -57,11 +68,10 @@ def main() -> None:
         print(f"Waiting {TAKEOFF_WAIT_S:.0f} seconds", flush=True)
         time.sleep(TAKEOFF_WAIT_S)
 
-        print("Waiting 10 seconds after takeoff", flush=True)
-        time.sleep(10.0)
+        print(f"Publishing waypoint speed: {WAYPOINT_SPEED_MPS:.2f} m/s", flush=True)
+        client.publish_waypoint_speed(WAYPOINT_SPEED_MPS)
 
-        # Waypoint command to move ~1 meter forward.
-        print(f"Publishing waypoint 1: {1.0:.1f} meters forward", flush=True)
+        print("Publishing waypoint: 1.0 meters forward", flush=True)
         client.publish_relative_waypoint(
             mode="override",
             forward=1.0,
@@ -72,7 +82,7 @@ def main() -> None:
         )
 
         print("Publishing land", flush=True)
-        client.publish_guidance_request("land")
+        client.publish_autonomy_request("land")
 
 
 if __name__ == "__main__":
@@ -81,5 +91,14 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nStopped by Ctrl+C", flush=True)
         sys.exit(130)
+```
 
+The command-line equivalents are:
+
+```bash
+nimbusos-arm
+nimbusos-autonomy-request takeoff
+nimbusos-waypoint-speed 0.45
+nimbusos-autonomy-request relative_waypoint --mode override --forward 1.0 --right 0.0 --down 0.0 --threshold 0.25 --hold-time 0.0
+nimbusos-autonomy-request land
 ```

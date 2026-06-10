@@ -1,10 +1,22 @@
+---
+description: Request landing through the current NimbusOS autonomy request API.
+---
+
 # Landing
 
-This tells the drone to go down towards the floor until it's about 10cm above the surface. The drone will then disarm, and the flight will be effectively stopped.
-
-This can be called with a single line
+Landing is requested through the autonomy request API.
 
 ```python
-client.publish_guidance_request("land")
+from nimbusos_sdk import NimbusClient
+
+with NimbusClient() as client:
+    client.publish_autonomy_request("land")
 ```
 
+The command-line equivalent is:
+
+```bash
+nimbusos-autonomy-request land
+```
+
+Use this only against a safe vehicle, simulator, or controlled NimbusOS test environment.

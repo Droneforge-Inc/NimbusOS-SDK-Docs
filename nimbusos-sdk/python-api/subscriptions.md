@@ -1,3 +1,7 @@
+---
+description: Typed subscription examples for telemetry, selected state, camera frames, waypoint status, and autonomy status.
+---
+
 # Subscriptions
 
 The SDK supports typed subscriptions for common NimbusOS receive workflows.
@@ -30,15 +34,15 @@ with NimbusClient() as client:
 Attitude values are exposed in degrees in the typed SDK object.
 {% endhint %}
 
-## State
+## Selected state
 
-State contains local-frame position, velocity, direction, attitude, and orientation data.
+Selected state contains local-frame position, velocity, direction, attitude, and orientation data.
 
 ```python
 from nimbusos_sdk import NimbusClient
 
 with NimbusClient() as client:
-    for state in client.state(timeout_sec=5.0):
+    for state in client.selected_state(timeout_sec=5.0):
         if state.valid:
             print(state.position.x_m, state.position.y_m, state.position.z_m)
             print(state.velocity.x_mps, state.velocity.y_mps, state.velocity.z_mps)
@@ -87,6 +91,8 @@ with NimbusClient() as client:
 
 Use `client.camera_frames()` for the core-selected camera stream. Use `client.live_camera_frames()` for the raw live camera stream before core camera-source selection.
 
+Use `client.latest_camera_frames()` or `client.latest_live_camera_frames()` when your application only needs the freshest queued camera frame.
+
 ## Waypoint status
 
 Waypoint status reports active waypoint progress and reached/held state.
@@ -112,3 +118,23 @@ with NimbusClient() as client:
 | `reached`              | Whether the current waypoint has been reached.             |
 | `held`                 | Whether the waypoint hold period has completed.            |
 | `distance_m`           | Current distance to the target in meters.                  |
+
+## Autonomy status
+
+Autonomy status reports the current high-level autonomy state.
+
+```python
+from nimbusos_sdk import NimbusClient
+
+with NimbusClient() as client:
+    for status in client.autonomy_status(timeout_sec=5.0):
+        print(status.seq, status.status)
+```
+
+### Fields
+
+| Field    | Description                                               |
+| -------- | --------------------------------------------------------- |
+| `seq`    | Status message sequence number.                           |
+| `t_ns`   | Status message timestamp in nanoseconds from NimbusOS.    |
+| `status` | Current autonomy status name, such as `idle` or `landed_manual`. |

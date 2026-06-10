@@ -1,3 +1,7 @@
+---
+description: Installed NimbusOS SDK command-line tools, topics, arguments, endpoints, and examples.
+---
+
 # CLI
 
 The SDK installs command-line tools for smoke testing and manual operation.
@@ -16,20 +20,22 @@ Subscribes to one supported SDK topic.
 
 ```bash
 nimbusos-subscribe telemetry
-nimbusos-subscribe state
+nimbusos-subscribe selected_state
 nimbusos-subscribe camera
+nimbusos-subscribe camera_overlay
 nimbusos-subscribe live_camera
 nimbusos-subscribe waypoint_status
+nimbusos-subscribe autonomy_status
 ```
 
 ### Arguments
 
-| Argument         | Required | Default            | Description                                                              |
-| ---------------- | -------- | ------------------ | ------------------------------------------------------------------------ |
-| `topic`          | Yes      | None               | One of `telemetry`, `state`, `camera`, `live_camera`, `waypoint_status`. |
-| `--limit`        | No       | `0`                | Stop after N messages. `0` means unlimited.                              |
-| `--timeout`      | No       | None               | Stop after N seconds.                                                    |
-| `--sub-endpoint` | No       | Configured default | ZeroMQ subscribe endpoint.                                               |
+| Argument         | Required | Default            | Description                                                                                                                   |
+| ---------------- | -------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `topic`          | Yes      | None               | One of `telemetry`, `selected_state`, `camera`, `camera_overlay`, `live_camera`, `waypoint_status`, `autonomy_status`.        |
+| `--limit`        | No       | `0`                | Stop after N messages. `0` means unlimited.                                                                                   |
+| `--timeout`      | No       | None               | Stop after N seconds.                                                                                                         |
+| `--sub-endpoint` | No       | Configured default | ZeroMQ subscribe endpoint.                                                                                                    |
 
 ### Examples
 
@@ -56,48 +62,45 @@ nimbusos-arm --disarm
 | `--disarm`       | No       | `false`            | Publish disarmed instead of armed. |
 | `--pub-endpoint` | No       | Configured default | ZeroMQ publish endpoint.           |
 
-## `nimbusos-guidance-request`
+## `nimbusos-autonomy-request`
 
-Publishes a guidance request.
-
-```bash
-nimbusos-guidance-request go
-nimbusos-guidance-request land
-nimbusos-guidance-request return_home
-nimbusos-guidance-request relative_waypoint --forward 1.5 --right 0.0 --down -1.0
-```
-
-### Arguments
-
-| Argument         | Required | Default            | Description                                              |
-| ---------------- | -------- | ------------------ | -------------------------------------------------------- |
-| `type`           | Yes      | None               | One of `go`, `land`, `relative_waypoint`, `return_home`. |
-| `--forward`      | No       | `0.0`              | Meters forward or backward.                              |
-| `--right`        | No       | `0.0`              | Meters right or left.                                    |
-| `--down`         | No       | `0.0`              | Down-axis target in meters.                              |
-| `--hold-time`    | No       | `0.0`              | Seconds to hold after reaching the waypoint.             |
-| `--pub-endpoint` | No       | Configured default | ZeroMQ publish endpoint.                                 |
-
-## `nimbusos-waypoint-command`
-
-Publishes one waypoint command.
+Publishes an autonomy request.
 
 ```bash
-nimbusos-waypoint-command --mode override --forward 1.5 --right 0.0 --down -1.0
-nimbusos-waypoint-command --mode queue --forward 1.0 --right 0.5 --down -1.0 --threshold 0.15 --hold-time 2.0
+nimbusos-autonomy-request takeoff
+nimbusos-autonomy-request land
+nimbusos-autonomy-request return_home
+nimbusos-autonomy-request relative_waypoint --mode override --forward 1.5 --right 0.0 --down 0.0
+nimbusos-autonomy-request relative_waypoint --mode queue --forward 1.0 --right 0.5 --down 0.0 --threshold 0.15 --hold-time 2.0
 ```
 
 ### Arguments
 
 | Argument         | Required | Default            | Description                                                            |
 | ---------------- | -------- | ------------------ | ---------------------------------------------------------------------- |
+| `type`           | Yes      | None               | One of `takeoff`, `land`, `relative_waypoint`, `return_home`.          |
+| `--forward`      | No       | `0.0`              | Meters forward or backward for `relative_waypoint`.                    |
+| `--right`        | No       | `0.0`              | Meters right or left for `relative_waypoint`.                          |
+| `--down`         | No       | `0.0`              | Meters down or up for `relative_waypoint`.                             |
 | `--mode`         | No       | `override`         | `override` replaces the active waypoint; `queue` appends to the queue. |
-| `--forward`      | Yes      | None               | Meters forward or backward.                                            |
-| `--right`        | Yes      | None               | Meters right or left.                                                  |
-| `--down`         | Yes      | None               | Absolute local-frame down target.                                      |
-| `--hold-time`    | No       | `0.0`              | Seconds to hold after reaching the waypoint.                           |
 | `--threshold`    | No       | `0.05`             | Meters from target that counts as reached.                             |
+| `--hold-time`    | No       | `0.0`              | Seconds to hold after reaching the waypoint.                           |
 | `--pub-endpoint` | No       | Configured default | ZeroMQ publish endpoint.                                               |
+
+## `nimbusos-waypoint-speed`
+
+Publishes waypoint path speed.
+
+```bash
+nimbusos-waypoint-speed 0.45
+```
+
+### Arguments
+
+| Argument         | Required | Default            | Description                                |
+| ---------------- | -------- | ------------------ | ------------------------------------------ |
+| `speed_mps`      | Yes      | None               | Waypoint path speed in meters per second, from `0.05` to `0.75`. |
+| `--pub-endpoint` | No       | Configured default | ZeroMQ publish endpoint.                   |
 
 ## `nimbusos-yaw-turn-command`
 

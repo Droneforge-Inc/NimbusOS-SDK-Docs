@@ -2,6 +2,7 @@
 
 * [NimbusOS SDK](README.md)
   * [Getting Started](nimbusos-sdk/getting-started.md)
+  * [LLM and AI Access](nimbusos-sdk/llm-and-ai-access.md)
   * [Python API](nimbusos-sdk/python-api/README.md)
     * [Setup](nimbusos-sdk/python-api/setup.md)
     * [Quick Start](nimbusos-sdk/python-api/quick-start.md)

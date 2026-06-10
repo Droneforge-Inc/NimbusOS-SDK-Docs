@@ -1,23 +1,22 @@
 ---
-description: Example of how to access the drones camera feed through NimbusOS SDK
+description: Example of how to access the drone camera feed through NimbusOS SDK
 ---
 
 # Camera Access
 
-In version 0.1.7 and later, the camera is able to be accessed easily by importing&#x20;
+Import `CameraFrame` and `NimbusClient` from `nimbusos_sdk`:
 
-`from nimbusos_sdk import CameraFrame`
+```python
+from nimbusos_sdk import CameraFrame
+from nimbusos_sdk import NimbusClient
+```
 
-Looping through `client.latest_live_camera_frames()` you can access the latest analog camera frame published by the connected drone.
+Use `client.latest_camera_frames()` for the core-selected `camera` stream. Use `client.latest_live_camera_frames()` for the raw `live_camera` stream before core camera-source selection.
 
-
-
-Here is an example of display the latest camera frame in an OpenCV window.
+Here is an example that displays the latest live camera frame in an OpenCV window.
 
 ```python
 from __future__ import annotations
-
-import time
 
 import cv2
 import numpy as np
@@ -32,8 +31,6 @@ def decode_bgr(frame: CameraFrame) -> np.ndarray | None:
 
 
 def main() -> None:
-    last_status_at_s = 0.0
-
     try:
         with NimbusClient() as client:
             for frame in client.latest_live_camera_frames():
@@ -43,12 +40,7 @@ def main() -> None:
 
                 cv2.imshow("Nimbus Camera", image_bgr)
 
-# Want to calculate some data about the camera frame speed? Uncomment me!
-
-#                now_s = time.monotonic()
-#                if now_s - last_status_at_s >= 1.0:
-#                    print(f"seq={frame.seq} {frame.width}x{frame.height}", flush=True)
-#                    last_status_at_s = now_s
+                print(f"seq={frame.seq} {frame.width}x{frame.height}", flush=True)
 
                 if cv2.waitKey(1) & 0xFF in (ord("q"), 27):
                     break
@@ -58,6 +50,11 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+```
 
+You can smoke-test camera topics from the command line:
 
+```bash
+nimbusos-subscribe camera --limit 1 --timeout 5
+nimbusos-subscribe live_camera --limit 1 --timeout 5
 ```

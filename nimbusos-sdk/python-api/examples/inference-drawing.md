@@ -1,18 +1,14 @@
 ---
-hidden: true
+description: Publish camera overlay drawing instructions for inference results.
 ---
 
 # Inference Drawing
 
-When developing this SDK we realized we were hopping around back and forth between rerun/cv.imshow and our application. To prevent this from being problematic our SDK has a camera overlay API and supports all primitive fields for [OpenCV Drawing Functions](https://docs.opencv.org/3.4.20/d6/d6e/group__imgproc__draw.html).
+The SDK has a camera overlay API for drawing inference results in the NimbusOS desktop application without republishing modified camera images.
 
-This will show all of the things you would need to draw from your inference pipelines directly on top of the camera feed in the NimbusOS desktop application.
+Overlays are drawing instructions sent on the `camera_overlay` topic. Camera pixels stay on the `camera` topic.
 
-
-
-These overlays are not new camera images. They are drawing instructions sent to the NimbusOS UI on the `camera_overlay` topic.
-
-Overlay coordinates are in image pixels. The origin is the top-left of the image, `x` moves right, and `y` moves down. The SDK scales the overlay to the camera view using the `frame_width` and `frame_height` you publish with the overlay.
+Overlay coordinates are in image pixels. The origin is the top-left of the image, `x` moves right, and `y` moves down. The NimbusOS UI scales the overlay to the camera view using the `frame_width` and `frame_height` you publish with the overlay.
 
 In simple terms think the following:
 
@@ -23,6 +19,8 @@ In simple terms think the following:
 * A layer is a named group of drawings. Higher `z_index` values draw on top.
 
 It's important to note that overlay coordinates must match the image size you pass as `frame_width` and `frame_height`. If inference runs on a resized image, either publish that resized width and height or scale the inference coordinates back to the original camera frame.
+
+The current SDK supports primitives such as `rect`, `rotated_rect`, `line`, `arrow`, `circle`, `ellipse`, `polyline`, `polygon`, `contour`, `text`, `label`, `keypoints`, `skeleton`, `trail`, `heatmap`, `mask`, `depth_map`, `gauge`, `panel`, `pose_axes`, `uncertainty_ellipse`, and `prediction_cone`.
 
 The simplest way to send an inference overlay in the SDK is to call:
 
@@ -53,13 +51,14 @@ client.publish_camera_overlay(
 
 `layers` gives the drawing commands. Each layer can contain boxes, lines, arrows, text, circles, polygons, masks, heatmaps, and other primitives supported by the SDK.
 
-Example combining camera frames, a person label, and a skeleton (Inspired from our Air Marshaling demo with [SAM-3D-BODY-DINOV3](https://huggingface.co/facebook/sam-3d-body-dinov3)) :
+Example combining camera frames, a person label, and a skeleton, inspired by an air marshaling demo with [SAM-3D-BODY-DINOV3](https://huggingface.co/facebook/sam-3d-body-dinov3):
 
 ```python
 from __future__ import annotations
 
 import sys
 
+from nimbusos_sdk import CameraOverlayLayerDict
 from nimbusos_sdk import NimbusClient
 from nimbusos_sdk import box
 
@@ -75,7 +74,7 @@ SKELETON_LINKS = (
 )
 
 
-def build_overlay_layers() -> list[dict]:
+def build_overlay_layers() -> list[CameraOverlayLayerDict]:
     # Example output from an inference model. Real model outputs should already
     # be in the same coordinate space as frame_width and frame_height.
     bbox_x = 220.0
@@ -157,4 +156,12 @@ if __name__ == "__main__":
         sys.exit(130)
 ```
 
-The person box includes `label="person"`, so the UI can show the person text. The skeleton line primitives intentionally do not include `track_id`, because the skeleton should draw as clean lines without repeated number labels. Add `track_id` only to detection primitives when you want the UI to show an identity number.&#x20;
+The person box includes `label="person"`, so the UI can show the person text. The skeleton line primitives intentionally do not include `track_id`, because the skeleton should draw as clean lines without repeated number labels. Add `track_id` only to detection primitives when you want the UI to show an identity number.
+
+You can smoke-test overlay messages from the command line:
+
+```bash
+nimbusos-subscribe camera_overlay --limit 1 --timeout 5
+```
+
+No command-line helper is installed for publishing camera overlays.
