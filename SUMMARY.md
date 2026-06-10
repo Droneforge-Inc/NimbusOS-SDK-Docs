@@ -1,0 +1,18 @@
+# Table of contents
+
+* [NimbusOS SDK](README.md)
+  * [Getting Started](nimbusos-sdk/getting-started.md)
+  * [Python API](nimbusos-sdk/python-api/README.md)
+    * [Setup](nimbusos-sdk/python-api/setup.md)
+    * [Quick Start](nimbusos-sdk/python-api/quick-start.md)
+    * [Publishing](nimbusos-sdk/python-api/publishing.md)
+    * [API](nimbusos-sdk/python-api/api.md)
+    * [Subscriptions](nimbusos-sdk/python-api/subscriptions.md)
+    * [CLI](nimbusos-sdk/python-api/cli.md)
+    * [Examples](nimbusos-sdk/python-api/examples/README.md)
+      * [Arming](nimbusos-sdk/python-api/examples/arming.md)
+      * [Takeoff](nimbusos-sdk/python-api/examples/takeoff.md)
+      * [Waypoints](nimbusos-sdk/python-api/examples/waypoints.md)
+      * [Landing](nimbusos-sdk/python-api/examples/landing.md)
+      * [Camera Access](nimbusos-sdk/python-api/examples/camera-access.md)
+      * [Inference Drawing](nimbusos-sdk/python-api/examples/inference-drawing.md)
